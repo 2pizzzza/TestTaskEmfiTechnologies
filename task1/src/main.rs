@@ -1,19 +1,32 @@
 use std::io;
+use std::env;
 use std::fs::File;
 use std::io::BufRead;
 
 fn main() {
-    let mut path = String::new();
-    io::stdin().read_line(&mut path).unwrap();
-    let path = path.trim();
+    let args: Vec<String> = env::args().collect();
 
+    if args.contains(&"--help".to_string()) {
+        println!("Usage: cargo run <file>\nThis program analyzes the content of the specified file and prints out the number of lines, words, and characters.");
+    }
+    if args.len() < 2 {
+        eprintln!("Please specify the file that needs to be analyzed, or use --help for usage instructions.");
+        std::process::exit(1);
+    }
+
+    let path = &args[1];
     match process_file(path) {
-        Ok((lines , words, chars))=> {
-            println!("Lines: {lines} \nWords: {words} \nChars:{chars}\n")
+        Ok((lines, words, chars)) => {
+            if lines == 0 && words == 0 && chars == 0 {
+                println!("Entered file is empty :((")
+            } else {
+                println!("File analysis results:\n- Lines: {lines}\n- Words: {words}\n- Characters: {chars}");
+            }
         }
-        Err(e)=> eprintln!("Error: {e}")
+        Err(e) => eprintln!("Error reading the file: {e}")
     }
 }
+
 
 fn process_file(path: &str) -> Result<(usize, usize, usize), io::Error> {
     let file = File::open(path)?;
@@ -32,5 +45,7 @@ fn process_file(path: &str) -> Result<(usize, usize, usize), io::Error> {
 
     Ok((words, lines, chars))
 }
+
+
 
 
