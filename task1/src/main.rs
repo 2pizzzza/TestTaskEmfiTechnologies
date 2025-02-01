@@ -6,11 +6,12 @@ use std::io::BufRead;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.contains(&"--help".to_string()) {
+    if args[1] == "help" {
         println!("Usage: cargo run <file>\nThis program analyzes the content of the specified file and prints out the number of lines, words, and characters.");
+        std::process::exit(1);
     }
     if args.len() < 2 {
-        eprintln!("Please specify the file that needs to be analyzed, or use --help for usage instructions.");
+        eprintln!("Please specify the file that needs to be analyzed, or use 'cargo run help' for usage instructions.");
         std::process::exit(1);
     }
 
