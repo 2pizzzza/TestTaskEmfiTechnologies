@@ -12,11 +12,15 @@ use std::sync::{Arc, Mutex};
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
-    std::env::set_var("RUST_LOG", "actix_web=debug");
+    std::env::set_var("RUST_LOG", "actix_web=info");
+
+
     let storage = Arc::new(Mutex::new(Storage::new()));
     let service = Arc::new(BookService::new(storage));
     let service_data = web::Data::new(service.clone());
 
+
+    println!("The server is running on port 8080");
     HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
