@@ -27,9 +27,4 @@ cargo run help
 
 Displays usage information about the program.
 
-## Requirements
-- Rust 1.65+
-
-## License
-MIT
 
