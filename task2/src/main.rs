@@ -1,33 +1,32 @@
+mod service;
+mod domain;
+mod infrastructure;
 mod api;
 
-use actix::{Actor, StreamHandler};
-use actix_web::{middleware, web, App, HttpResponse, HttpServer, Responder};
-use serde::{Deserialize, Serialize};
-use api::{custom_websocket, hello, echo, websocket};
-
+use crate::infrastructure::book_repository::Storage;
+use crate::service::book_service::BookService;
+use actix_web::{middleware, web, App, HttpServer};
+use api::book_controller::websocket;
+use std::sync::{Arc, Mutex};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
+    std::env::set_var("RUST_LOG", "actix_web=debug");
+    let storage = Arc::new(Mutex::new(Storage::new()));
+    let service = Arc::new(BookService::new(storage));
+    let service_data = web::Data::new(service.clone());
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
-            .service(hello)
-            .service(echo)
+            .app_data(service_data.clone())
             .service(websocket)
-            .service(custom_websocket)
-            .route("/hey", web::get().to(manual_hello))
     })
+
         .bind(("127.0.0.1", 8080))?
         .run()
         .await
 }
-
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!")
-}
-
 
 
